@@ -1,0 +1,26 @@
+{
+  "name": "ticketchain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaduvanathan/ticketchain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vaduvanathan/ticketchain/issues"
+  },
+  "homepage": "https://github.com/vaduvanathan/ticketchain#readme",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.54.0",
+    "avalanche": "^3.16.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  }
+}
