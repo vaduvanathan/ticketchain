@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketChain - Web3 Event Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.1/dist/ethers.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .wallet-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e74c3c;
+        }
+
+        .status-indicator.connected {
+            background: #27ae60;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .credit-score {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .credit-score h2 {
+            font-size: 3rem;
+            margin-bottom: 5px;
+        }
+
+        .events-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .event-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .event-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+
+        .blockchain-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 TicketChain</h1>
+            <p>Web3-Powered Event Management with Credit Scores</p>
+        </div>
+
+        <!-- Wallet Connection Section -->
+        <div class="wallet-section">
+            <div class="wallet-status">
+                <div class="status-indicator" id="walletIndicator"></div>
+                <span id="walletStatus">Wallet not connected</span>
+            </div>
+            <button class="btn" id="connectWallet" onclick="connectWallet()">Connect MetaMask</button>
+            <button class="btn" id="registerUser" onclick="registerUser()" style="display:none;">Register User</button>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alerts"></div>
+
+        <!-- Main Content Grid -->
+        <div class="grid">
+            <!-- User Profile -->
+            <div class="card">
+                <h3>👤 User Profile</h3>
+                <div id="userProfile" style="display:none;">
+                    <div class="credit-score">
+                        <h2 id="creditScore">100</h2>
+                        <p>Credit Score</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Wallet Address:</label>
+                        <input type="text" id="userWallet" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="userName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="text" id="userEmail" readonly>
+                    </div>
+                </div>
+                <div id="userNotRegistered" style="display:none;">
+                    <p>Please register to continue using TicketChain.</p>
+                </div>
+            </div>
+
+            <!-- Create Event -->
+            <div class="card">
+                <h3>📅 Create Event</h3>
+                <form id="createEventForm">
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title:</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDescription">Description:</label>
+                        <textarea id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventLocation">Location:</label>
+                        <input type="text" id="eventLocation">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDateTime">Date & Time:</label>
+                        <input type="datetime-local" id="eventDateTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxAttendees">Max Attendees:</label>
+                        <input type="number" id="maxAttendees" min="1" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="useBlockchain" checked> 
+                            Register on Blockchain
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Create Event</button>
+                </form>
+            </div>
+
+            <!-- Events List -->
+            <div class="card">
+                <h3>🎪 Events</h3>
+                <button class="btn" onclick="loadEvents()" style="margin-bottom: 15px;">Refresh Events</button>
+                <div class="events-list" id="eventsList">
+                    <div class="loading" id="eventsLoading">Loading events...</div>
+                </div>
+            </div>
+
+            <!-- Check-in Section -->
+            <div class="card">
+                <h3>✅ Event Check-in</h3>
+                <form id="checkinForm">
+                    <div class="form-group">
+                        <label for="checkinEventId">Event ID:</label>
+                        <input type="text" id="checkinEventId" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="checkinBlockchain" checked> 
+                            Record on Blockchain
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Check In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        let currentUser = null;
+        let web3Provider = null;
+
+        // Connect to MetaMask
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    
+                    web3Provider = new ethers.BrowserProvider(window.ethereum);
+                    
+                    document.getElementById('walletStatus').textContent = `Connected: ${account.substring(0, 6)}...${account.substring(38)}`;
+                    document.getElementById('walletIndicator').classList.add('connected');
+                    document.getElementById('connectWallet').style.display = 'none';
+                    
+                    // Check if user is registered
+                    await checkUserRegistration(account);
+                    
+                } catch (error) {
+                    showAlert('Failed to connect wallet: ' + error.message, 'error');
+                }
+            } else {
+                showAlert('MetaMask not found. Please install MetaMask.', 'error');
+            }
+        }
+
+        // Check if user is registered
+        async function checkUserRegistration(walletAddress) {
+            try {
+                const response = await fetch(`${API_BASE}/users/${walletAddress}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    displayUserProfile();
+                } else {
+                    document.getElementById('registerUser').style.display = 'inline-block';
+                    document.getElementById('userNotRegistered').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error checking user registration:', error);
+            }
+        }
+
+        // Register new user
+        async function registerUser() {
+            if (!web3Provider) return;
+            
+            const signer = await web3Provider.getSigner();
+            const address = await signer.getAddress();
+            
+            const name = prompt('Enter your name:');
+            const email = prompt('Enter your email (optional):');
+            
+            if (!name) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        wallet_address: address,
+                        name: name,
+                        email: email || ''
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    document.getElementById('registerUser').style.display = 'none';
+                    document.getElementById('userNotRegistered').style.display = 'none';
+                    displayUserProfile();
+                    showAlert('User registered successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert('Registration failed: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Registration failed: ' + error.message, 'error');
+            }
+        }
+
+        // Display user profile
+        function displayUserProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('userProfile').style.display = 'block';
+            document.getElementById('creditScore').textContent = currentUser.credit_score || '100';
+            document.getElementById('userWallet').value = currentUser.wallet_address;
+            document.getElementById('userName').value = currentUser.name || '';
+            document.getElementById('userEmail').value = currentUser.email || '';
+        }
+
+        // Create event
+        document.getElementById('createEventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showAlert('Please connect wallet and register first', 'error');
+                return;
+            }
+            
+            const formData = {
+                title: document.getElementById('eventTitle').value,
+                description: document.getElementById('eventDescription').value,
+                location: document.getElementById('eventLocation').value,
+                date_time: new Date(document.getElementById('eventDateTime').value).toISOString(),
+                max_attendees: parseInt(document.getElementById('maxAttendees').value),
+                organizer_id: currentUser.wallet_address,
+                use_blockchain: document.getElementById('useBlockchain').checked
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showAlert(`Event created successfully! Event ID: ${data.event.id}`, 'success');
+                    document.getElementById('createEventForm').reset();
+                    loadEvents();
+                } else {
+                    const error = await response.json();
+                    showAlert('Failed to create event: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to create event: ' + error.message, 'error');
+            }
+        });
+
+        // Load events
+        async function loadEvents() {
+            const loadingEl = document.getElementById('eventsLoading');
+            const eventsListEl = document.getElementById('eventsList');
+            
+            loadingEl.classList.add('show');
+            
+            try {
+                const response = await fetch(`${API_BASE}/events`);
+                const data = await response.json();
+                
+                eventsListEl.innerHTML = '';
+                
+                if (data.events && data.events.length > 0) {
+                    data.events.forEach(event => {
+                        const eventEl = document.createElement('div');
+                        eventEl.className = 'event-item';
+                        eventEl.innerHTML = `
+                            <h4>${event.title}</h4>
+                            <div class="event-meta">
+                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                                ${event.blockchain ? '<span class="blockchain-badge">On-Chain</span>' : ''}
+                            </div>
+                            <p>${event.description || 'No description'}</p>
+                            <p><strong>Event ID:</strong> ${event.id}</p>
+                            <p><strong>Organizer:</strong> ${event.organizer_id}</p>
+                        `;
+                        eventsListEl.appendChild(eventEl);
+                    });
+                } else {
+                    eventsListEl.innerHTML = '<p>No events found.</p>';
+                }
+            } catch (error) {
+                eventsListEl.innerHTML = '<p>Failed to load events.</p>';
+            } finally {
+                loadingEl.classList.remove('show');
+            }
+        }
+
+        // Check-in to event
+        document.getElementById('checkinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showAlert('Please connect wallet and register first', 'error');
+                return;
+            }
+            
+            const eventId = document.getElementById('checkinEventId').value;
+            const useBlockchain = document.getElementById('checkinBlockchain').checked;
+            
+            try {
+                const response = await fetch(`${API_BASE}/events/${eventId}/checkin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUser.wallet_address,
+                        use_blockchain: useBlockchain
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showAlert(`Check-in successful! Punctuality score: ${data.punctuality_score}`, 'success');
+                    
+                    // Refresh user profile to show updated credit score
+                    setTimeout(() => {
+                        checkUserRegistration(currentUser.wallet_address);
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    showAlert('Check-in failed: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Check-in failed: ' + error.message, 'error');
+            }
+        });
+
+        // Utility function to show alerts
+        function showAlert(message, type) {
+            const alertsEl = document.getElementById('alerts');
+            const alertEl = document.createElement('div');
+            alertEl.className = `alert alert-${type}`;
+            alertEl.textContent = message;
+            
+            alertsEl.appendChild(alertEl);
+            
+            setTimeout(() => {
+                alertEl.remove();
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEvents();
+        });
+    </script>
+</body>
+</html>
