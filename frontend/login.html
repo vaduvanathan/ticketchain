@@ -148,7 +148,7 @@
     const form = document.getElementById('registerForm');
     const params = new URLSearchParams(location.search);
     const intent = params.get('intent') || 'join';
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', async function(event) {
       event.preventDefault();
 
       const role = document.getElementById('role').value.trim();
@@ -161,17 +161,6 @@
         alert('Please fill out role, name, phone number, and wallet address.');
         return;
       }
-
-      // If there is no stored user or wallet mismatch, send to registration instead
-      try {
-        const existing = JSON.parse(localStorage.getItem('es:user') || 'null');
-        if (!existing || (existing && existing.wallet_address !== wallet)) {
-          // preserve form values via session storage so register can prefill (optional)
-          sessionStorage.setItem('es:prefill', JSON.stringify({ role, name, phone, email, wallet }));
-          window.location.href = './register.html?intent=' + encodeURIComponent(intent);
-          return;
-        }
-      } catch(_) {}
 
       const user = { 
         role, 
@@ -188,6 +177,18 @@
         // Also store role separately for easy access
         localStorage.setItem('es:userRole', role);
       } catch(_) {}
+
+      // Best-effort: ensure user exists in backend
+      try {
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        const r = await fetch(`${API_BASE}/users/${wallet}`);
+        if (r.status === 404) {
+          await fetch(`${API_BASE}/users`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet_address: wallet, name, email })
+          });
+        }
+      } catch(_) { /* ignore network errors */ }
       
       // After login, go to index; user access is gated there. Use intent to scroll/guide later if needed.
       window.location.href = './index.html?intent=' + encodeURIComponent(intent);
