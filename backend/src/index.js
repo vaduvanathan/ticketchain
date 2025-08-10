@@ -17,7 +17,7 @@ const blockchainService = new BlockchainService();
 
 app.use(express.json());
 app.use(cors());
-app.options('*', cors());
+app.options('/*', cors());
 
 // Simple ping route
 app.get('/ping', (req, res) => {
