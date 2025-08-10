@@ -1083,6 +1083,17 @@
             checkBackendConnection();
             // Ensure backend knows about local user (auto-register if missing)
             await ensureBackendUser();
+            // Fetch latest user to get accurate credit score, then show profile
+            try {
+                if (currentUser && currentUser.wallet_address) {
+                    const r = await fetch(`${API_BASE}/users/${currentUser.wallet_address}`);
+                    if (r.ok) {
+                        const d = await r.json();
+                        if (d && d.user) currentUser = d.user;
+                    }
+                }
+            } catch(_) {}
+            displayUserProfile();
             // Render UI according to role and user
             checkUserRole();
             loadEvents();
