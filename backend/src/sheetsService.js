@@ -117,7 +117,8 @@ class SheetsService {
         const sheet = this.sheets.users;
         const rows = await sheet.getRows();
         
-        const userRow = rows.find(row => row.get('id') === userId);
+        // Use wallet_address as the identifier, since other calls pass wallet addresses
+        const userRow = rows.find(row => row.get('wallet_address') === userId || row.get('id') === userId);
         if (!userRow) throw new Error('User not found');
         
         const oldScore = parseInt(userRow.get('credit_score'));

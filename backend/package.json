@@ -16,9 +16,12 @@
     "ethers": "^6.15.0",
     "google-spreadsheet": "^5.0.2",
     "googleapis": "^155.0.1",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "express": "^5.1.0",
+    "dotenv": "^17.2.1"
   },
   "devDependencies": {
-    "hardhat": "^2.26.2"
+    "hardhat": "^2.26.2",
+    "nodemon": "^3.1.0"
   }
 }
