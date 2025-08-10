@@ -6,7 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const SheetsService = process.env.MOCK_SHEETS === '1'
   ? require('./sheetsService.mock')
-  : (process.env.DB === 'sqlite' ? require('./sheetsService.sqlite') : require('./sheetsService'));
+  : (process.env.DB === 'sqlite' ? require('./sheetsService.sqlite') : (process.env.DB === 'file' ? require('./sheetsService.file') : require('./sheetsService')));
 const BlockchainService = require('./blockchainService');
 
 const app = express();

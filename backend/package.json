@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env DB=sqlite node src/index.js",
-    "dev": "cross-env DB=sqlite nodemon src/index.js"
+    "start": "cross-env DB=file node src/index.js",
+    "dev": "cross-env DB=file nodemon src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +19,6 @@
     "google-spreadsheet": "^5.0.2",
     "googleapis": "^155.0.1",
     "node-fetch": "^2.7.0",
-    "better-sqlite3": "^9.4.3",
     "cross-env": "^7.0.3"
   },
   "devDependencies": {
