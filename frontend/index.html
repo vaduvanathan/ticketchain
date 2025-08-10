@@ -371,7 +371,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="brand"><span class="icon">e</span> <span>event score</span></div>
+            <div class="brand"><span class="icon">e</span> <span>ticketchain</span></div>
             <div class="actions">
                 <a class="ghost" href="./home.html">Home</a>
                 <a class="ghost" href="./login.html">Switch user</a>
@@ -398,7 +398,7 @@
         <div class="grid">
             <!-- User Profile -->
             <div class="card">
-                <h3>👤 User Profile</h3>
+                <h3 id="profileTitle">👤 User</h3>
                 <div id="userProfile" style="display: none;">
                     <div class="credit-score">
                         <h2 id="creditScore">100</h2>
@@ -685,6 +685,8 @@
             if (!currentUser) return;
             
             document.getElementById('userProfile').style.display = 'block';
+            const title = document.getElementById('profileTitle');
+            if (title) title.textContent = `👤 ${currentUser.name || 'User'}`;
             document.getElementById('creditScore').textContent = currentUser.credit_score || '100';
             document.getElementById('userWallet').value = currentUser.wallet_address;
             document.getElementById('userName').value = currentUser.name || '';
@@ -952,7 +954,9 @@
                 eventsListEl.innerHTML = '';
                 
                 if (data.events && data.events.length > 0) {
+                    const seen = new Set();
                     data.events.forEach(event => {
+                        if (seen.has(event.id)) return; seen.add(event.id);
                         const eventEl = document.createElement('div');
                         eventEl.className = 'event-item';
                         
