@@ -27,6 +27,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Root route for health checks
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Simple ping route
 app.get('/ping', (req, res) => {
   res.send('Ticketchain backend with Google Sheets is live!');
