@@ -530,7 +530,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = `http://${window.location.hostname}:3000`;
         let currentUser = null;
         let web3Provider = null;
         let backendConnected = false;
@@ -940,11 +940,13 @@
             const loadingEl = document.getElementById('eventsLoading');
             const eventsListEl = document.getElementById('eventsList');
             
+            if (!loadingEl || !eventsListEl) return;
             loadingEl.classList.add('show');
             
-            try {
-                const response = await fetch(`${API_BASE}/events`);
-                const data = await response.json();
+                         try {
+                 const response = await fetch(`${API_BASE}/events`).catch(() => null);
+                 if (!response) { eventsListEl.innerHTML = '<p>Backend not reachable.</p>'; return; }
+                 const data = await response.json().catch(() => ({ events: [] }));
                 
                 eventsListEl.innerHTML = '';
                 
