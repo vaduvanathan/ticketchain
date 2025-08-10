@@ -4,7 +4,7 @@ console.log('GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? 'Loaded' : 'Missin
 
 const express = require('express');
 const cors = require('cors');
-const SheetsService = require('./sheetsService');
+const SheetsService = process.env.MOCK_SHEETS === '1' ? require('./sheetsService.mock') : require('./sheetsService');
 const BlockchainService = require('./blockchainService');
 
 const app = express();
