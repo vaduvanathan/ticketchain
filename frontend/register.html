@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ES — Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffe9ea;
+      --panel: #ffffff;
+      --red-1: #c20e17;
+      --red-2: #ed2b2b;
+      --red-3: #8e0b12;
+      --text: #2b2b2b;
+      --muted: #7a7a7a;
+      --shadow: rgba(139, 0, 0, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #ffeef0, #ffe3e6);
+      font-family: 'Rubik', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      display: grid; place-items: center; padding: 24px;
+    }
+
+    .card {
+      width: min(92vw, 560px);
+      background: #fff;
+      border: 2px solid #f4d6d8;
+      border-radius: 22px;
+      box-shadow: 0 12px 32px var(--shadow);
+      padding: 24px;
+    }
+
+    .title { font-family: 'Orbitron', sans-serif; font-weight: 800; color: var(--red-1); font-size: clamp(24px, 4vw, 28px); }
+    .subtitle { margin-top: 6px; color: var(--red-3); font-size: 14px; }
+
+    .group { margin-top: 16px; }
+    label { display: block; margin-bottom: 8px; color: var(--red-3); font-weight: 700; font-size: 14px; }
+
+    select, input {
+      width: 100%; height: 46px; border-radius: 12px; border: 2px solid #f4d6d8; background: #fff; color: var(--text); padding: 0 14px; outline: none; transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+    }
+    input::placeholder { color: #a67a7c; }
+    select:focus, input:focus { border-color: var(--red-2); box-shadow: 0 0 0 4px rgba(237,43,43,0.06); }
+
+    .btn { margin-top: 18px; width: 100%; height: 48px; border: 0; border-radius: 12px; background: linear-gradient(135deg, var(--red-2), var(--red-1)); color: #fff; font-weight: 800; letter-spacing: 0.3px; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.2s ease, opacity 0.2s ease; box-shadow: 0 10px 24px var(--shadow); }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px var(--shadow); }
+
+    .helper { margin-top: 14px; color: var(--muted); text-align: center; font-size: 13px; }
+    .helper a { color: var(--red-1); text-underline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="title">
+    <h1 id="title" class="title">Create your ES account</h1>
+    <p class="subtitle">Register to join or create events</p>
+
+    <form id="registerForm" novalidate>
+      <div class="group">
+        <label for="role">Select Role</label>
+        <select id="role" required aria-required="true">
+          <option value="">-- Choose --</option>
+          <option value="attendee">Attendee</option>
+          <option value="organizer">Organizer</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <label for="name">Name</label>
+        <input id="name" type="text" placeholder="Enter your name" required />
+      </div>
+
+      <div class="group">
+        <label for="phone">Phone Number</label>
+        <input id="phone" type="tel" inputmode="tel" placeholder="Enter your phone number" required />
+      </div>
+
+      <div class="group">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="Enter your email" />
+      </div>
+
+      <div class="group">
+        <label for="wallet">Wallet Address</label>
+        <input id="wallet" type="text" placeholder="Enter your wallet address" required />
+      </div>
+
+      <button class="btn" type="submit">Register</button>
+      <p class="helper">Already have an account? <a href="./login.html">Login</a></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const params = new URLSearchParams(location.search);
+    const intent = params.get('intent') || 'join';
+
+    // Prefill if redirected from login
+    try {
+      const prefill = JSON.parse(sessionStorage.getItem('es:prefill') || 'null');
+      if (prefill) {
+        if (prefill.role) document.getElementById('role').value = prefill.role;
+        if (prefill.name) document.getElementById('name').value = prefill.name;
+        if (prefill.phone) document.getElementById('phone').value = prefill.phone;
+        if (prefill.email) document.getElementById('email').value = prefill.email;
+        if (prefill.wallet) document.getElementById('wallet').value = prefill.wallet;
+        sessionStorage.removeItem('es:prefill');
+      }
+    } catch(_) {}
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const role = document.getElementById('role').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const wallet = document.getElementById('wallet').value.trim();
+
+      if (!role || !name || !phone || !wallet) {
+        alert('Please fill out role, name, phone number, and wallet address.');
+        return;
+      }
+
+      const user = { 
+        role, 
+        name, 
+        phone, 
+        email, 
+        wallet_address: wallet,
+        credit_score: 100,
+        createdAt: new Date().toISOString() 
+      };
+      
+      try { 
+        localStorage.setItem('es:user', JSON.stringify(user)); 
+        localStorage.setItem('es:userRole', role);
+      } catch(_) {}
+      
+      window.location.href = './index.html?intent=' + encodeURIComponent(intent);
+    });
+  </script>
+</body>
+</html>
