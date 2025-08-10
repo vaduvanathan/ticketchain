@@ -18,7 +18,8 @@
     "ethers": "^6.15.0",
     "google-spreadsheet": "^5.0.2",
     "googleapis": "^155.0.1",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "better-sqlite3": "^9.4.3"
   },
   "devDependencies": {
     "hardhat": "^2.26.2"
