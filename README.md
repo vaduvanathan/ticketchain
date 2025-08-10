@@ -223,3 +223,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 Built with ❤️ for the Web3 community. Star ⭐ this repo if you find it useful!
+
+## Frontend mock pages (static)
+
+Two lightweight static pages were added under `frontend/` to match the provided UI mockups:
+
+- `frontend/home.html`: Hero welcome screen with red theme and CTAs
+- `frontend/login.html`: Glassy registration/login form
+
+Open them directly in a browser or serve the `frontend/` folder with any static server.
+
+```bash
+# from repo root
+python3 -m http.server 8080 -d frontend
+# then visit: http://localhost:8080/home.html or /login.html
+```
