@@ -181,7 +181,7 @@
 
       // Best-effort: ensure user exists in backend
       try {
-        const API_BASE = window.location.origin;
+        const API_BASE = '';
         const r = await fetch(`${API_BASE}/users/${wallet}`);
         if (r.status === 404) {
           await fetch(`${API_BASE}/users`, {
