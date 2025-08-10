@@ -140,8 +140,7 @@
     <header class="topbar">
       <div class="brand"><span class="icon">e</span> <span>ticketchain</span></div>
       <div class="actions">
-        <a class="ghost" href="./index.html">Explore events ↗</a>
-        <div id="avatar" class="avatar">U</div>
+        <a class="ghost" href="./login.html">Sign in</a>
       </div>
     </header>
 
@@ -153,7 +152,7 @@
       </section>
 
       <aside class="cta-card">
-        <h3>Join or Create</h3>
+        <h3>New user?</h3>
         <div class="big">Event</div>
         <div class="cta-row">
           <a class="btn-red" href="./login.html?intent=join">Join Event</a>
@@ -163,17 +162,5 @@
     </div>
   </div>
 
-  <script>
-    const avatar = document.getElementById('avatar');
-    try {
-      const raw = localStorage.getItem('es:user');
-      if (raw) {
-        const user = JSON.parse(raw);
-        const ch = (user.name || user.email || 'U').trim()[0] || 'U';
-        avatar.textContent = ch.toUpperCase();
-        avatar.title = `${user.name || 'User'} — ${user.role || ''}`.trim();
-      }
-    } catch(_) {}
-  </script>
 </body>
 </html>
