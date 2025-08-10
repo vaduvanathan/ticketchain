@@ -245,6 +245,9 @@
                 <div class="status-indicator" id="walletIndicator"></div>
                 <span id="walletStatus">Wallet not connected</span>
             </div>
+            <div class="wallet-status">
+                <div class="status-indicator" id="backendStatus">Backend: Checking...</div>
+            </div>
             <button class="btn" id="connectWallet" onclick="connectWallet()">Connect MetaMask</button>
             <button class="btn" id="registerUser" onclick="registerUser()" style="display:none;">Register User</button>
         </div>
@@ -347,6 +350,28 @@
         const API_BASE = 'http://localhost:3000';
         let currentUser = null;
         let web3Provider = null;
+        let backendConnected = false;
+
+        // Check backend connection status
+        async function checkBackendConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/ping`);
+                if (response.ok) {
+                    backendConnected = true;
+                    document.getElementById('backendStatus').textContent = 'Backend: Connected';
+                    document.getElementById('backendStatus').className = 'status-indicator connected';
+                } else {
+                    backendConnected = false;
+                    document.getElementById('backendStatus').textContent = 'Backend: Error';
+                    document.getElementById('backendStatus').className = 'status-indicator';
+                }
+            } catch (error) {
+                backendConnected = false;
+                document.getElementById('backendStatus').textContent = 'Backend: Disconnected';
+                document.getElementById('backendStatus').className = 'status-indicator';
+                console.error('Backend connection failed:', error);
+            }
+        }
 
         // Connect to MetaMask
         async function connectWallet() {
@@ -374,6 +399,11 @@
 
         // Check if user is registered
         async function checkUserRegistration(walletAddress) {
+            if (!backendConnected) {
+                showAlert('Backend not connected. Please check server status.', 'error');
+                return;
+            }
+            
             try {
                 const response = await fetch(`${API_BASE}/users/${walletAddress}`);
                 
@@ -387,12 +417,18 @@
                 }
             } catch (error) {
                 console.error('Error checking user registration:', error);
+                showAlert('Failed to check user registration. Backend may be offline.', 'error');
             }
         }
 
         // Register new user
         async function registerUser() {
             if (!web3Provider) return;
+            
+            if (!backendConnected) {
+                showAlert('Backend not connected. Please check server status.', 'error');
+                return;
+            }
             
             const signer = await web3Provider.getSigner();
             const address = await signer.getAddress();
@@ -486,6 +522,11 @@
 
         // Load events
         async function loadEvents() {
+            if (!backendConnected) {
+                document.getElementById('eventsList').innerHTML = '<p>Backend not connected. Cannot load events.</p>';
+                return;
+            }
+            
             const loadingEl = document.getElementById('eventsLoading');
             const eventsListEl = document.getElementById('eventsList');
             
@@ -509,7 +550,7 @@
                             </div>
                             <p>${event.description || 'No description'}</p>
                             <p><strong>Event ID:</strong> ${event.id}</p>
-                            <p><strong>Organizer:</strong> ${event.organizer_id}</p>
+                            <strong>Organizer:</strong> ${event.organizer_id}</p>
                         `;
                         eventsListEl.appendChild(eventEl);
                     });
@@ -517,7 +558,8 @@
                     eventsListEl.innerHTML = '<p>No events found.</p>';
                 }
             } catch (error) {
-                eventsListEl.innerHTML = '<p>Failed to load events.</p>';
+                eventsListEl.innerHTML = '<p>Failed to load events. Backend may be offline.</p>';
+                console.error('Error loading events:', error);
             } finally {
                 loadingEl.classList.remove('show');
             }
@@ -580,6 +622,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            checkBackendConnection();
             loadEvents();
         });
     </script>
