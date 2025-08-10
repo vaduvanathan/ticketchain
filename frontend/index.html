@@ -741,7 +741,7 @@
 
         // Load upcoming events for attendees
         async function loadUpcomingEvents() {
-            if (!currentUser || !backendConnected) return;
+            if (!currentUser) return;
             
             try {
                 const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/attending`);
@@ -776,7 +776,7 @@
 
         // Load events that the user is organizing
         async function loadOrganizingEvents() {
-            if (!currentUser || !backendConnected) return;
+            if (!currentUser) return;
             
             try {
                 const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/organizing`);
@@ -805,7 +805,8 @@
                 }
             } catch (error) {
                 console.error('Error loading organizing events:', error);
-                document.getElementById('organizingEventsList').innerHTML = '<p>Failed to load organizing events.</p>';
+                const el = document.getElementById('organizingEventsList');
+                if (el) el.innerHTML = '<p>Failed to load organizing events.</p>';
             }
         }
 
