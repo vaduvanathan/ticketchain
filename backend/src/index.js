@@ -152,8 +152,54 @@ app.post('/events/:event_id/register', async (req, res) => {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    const participation = await sheetsService.registerParticipant(req.params.event_id, user_id);
+    const participation = await sheetsService.registerParticipant(req.params.event_id, user_id, 'pending');
     res.status(201).json({ participation });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint to approve/reject event registration
+app.post('/events/:event_id/participants/:user_id/approve', async (req, res) => {
+  try {
+    const { status } = req.body; // 'approved' or 'rejected'
+    
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Status must be approved or rejected' });
+    }
+
+    const result = await sheetsService.updateParticipantStatus(req.params.event_id, req.params.user_id, status);
+    res.json({ message: `Registration ${status}`, result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint to get events for a specific user (as attendee)
+app.get('/users/:wallet_address/events/attending', async (req, res) => {
+  try {
+    const events = await sheetsService.getUserAttendingEvents(req.params.wallet_address);
+    res.json({ events });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint to get events for a specific user (as organizer)
+app.get('/users/:wallet_address/events/organizing', async (req, res) => {
+  try {
+    const events = await sheetsService.getUserOrganizingEvents(req.params.wallet_address);
+    res.json({ events });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint to get pending registrations for an event
+app.get('/events/:event_id/participants/pending', async (req, res) => {
+  try {
+    const pendingParticipants = await sheetsService.getPendingParticipants(req.params.event_id);
+    res.json({ pendingParticipants });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

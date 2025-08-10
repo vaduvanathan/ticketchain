@@ -170,28 +170,107 @@ class SheetsService {
     }
 
     // Participant management functions
-    async registerParticipant(eventId, userId) {
+    async registerParticipant(eventId, userId, status = 'pending') {
         await this.initialize();
         const sheet = this.sheets.event_participants;
         
-        const participation = {
+        const newParticipation = {
             id: this.generateId(),
             event_id: eventId,
             user_id: userId,
             registration_time: new Date().toISOString(),
-            check_in_time: '',
-            check_out_time: '',
-            attendance_status: 'registered',
+            check_in_time: null,
+            check_out_time: null,
+            attendance_status: status, // 'pending', 'approved', 'rejected', 'checked_in', 'checked_out'
             punctuality_score: 0
         };
+        
+        await sheet.addRow(newParticipation);
+        return newParticipation;
+    }
 
-        const row = await sheet.addRow(participation);
-        return { ...participation, rowIndex: row.rowIndex };
+    async updateParticipantStatus(eventId, userId, status) {
+        await this.initialize();
+        const sheet = this.sheets.event_participants;
+        
+        const rows = await sheet.getRows();
+        const participationRow = rows.find(row => 
+            row.get('event_id') === eventId && row.get('user_id') === userId
+        );
+        
+        if (!participationRow) {
+            throw new Error('Participation record not found');
+        }
+        
+        participationRow.set('attendance_status', status);
+        await participationRow.save();
+        
+        return { eventId, userId, status };
+    }
+
+    async getPendingParticipants(eventId) {
+        await this.initialize();
+        const sheet = this.sheets.event_participants;
+        
+        const rows = await sheet.getRows();
+        const pendingRows = rows.filter(row => 
+            row.get('event_id') === eventId && row.get('attendance_status') === 'pending'
+        );
+        
+        return pendingRows.map(row => this.rowToObject(row));
+    }
+
+    async getUserAttendingEvents(walletAddress) {
+        await this.initialize();
+        const participantsSheet = this.sheets.event_participants;
+        const eventsSheet = this.sheets.events;
+        
+        // Get all events where user is a participant
+        const participantRows = await participantsSheet.getRows();
+        const userParticipations = participantRows.filter(row => 
+            row.get('user_id') === walletAddress && 
+            ['approved', 'checked_in', 'checked_out'].includes(row.get('attendance_status'))
+        );
+        
+        // Get event details for each participation
+        const eventRows = await eventsSheet.getRows();
+        const events = [];
+        
+        for (const participation of userParticipations) {
+            const eventRow = eventRows.find(row => row.get('id') === participation.get('event_id'));
+            if (eventRow) {
+                const event = this.rowToObject(eventRow);
+                event.participation_status = participation.get('attendance_status');
+                event.registration_time = participation.get('registration_time');
+                events.push(event);
+            }
+        }
+        
+        // Filter for upcoming events (date_time > now)
+        const now = new Date();
+        return events.filter(event => new Date(event.date_time) > now);
+    }
+
+    async getUserOrganizingEvents(walletAddress) {
+        await this.initialize();
+        const eventsSheet = this.sheets.events;
+        
+        const rows = await eventsSheet.getRows();
+        const organizingEvents = rows.filter(row => 
+            row.get('organizer_id') === walletAddress
+        );
+        
+        // Filter for upcoming events (date_time > now)
+        const now = new Date();
+        return organizingEvents
+            .filter(row => new Date(row.get('date_time')) > now)
+            .map(row => this.rowToObject(row));
     }
 
     async checkInParticipant(eventId, userId, checkInTime = null) {
         await this.initialize();
         const sheet = this.sheets.event_participants;
+        
         const rows = await sheet.getRows();
         
         const participantRow = rows.find(row => 
@@ -235,6 +314,7 @@ class SheetsService {
     async getEventParticipants(eventId) {
         await this.initialize();
         const sheet = this.sheets.event_participants;
+        
         const rows = await sheet.getRows();
         
         const participants = rows.filter(row => row.get('event_id') === eventId);

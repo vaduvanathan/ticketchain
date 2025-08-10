@@ -242,6 +242,94 @@
             display: block;
         }
 
+        .pending-request-item {
+            background: #fdf6e3; /* Light yellow background */
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f1c40f; /* Orange border */
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .pending-request-item {
+            background: #fdf6e3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f1c40f;
+        }
+
+        .pending-request-item h4 {
+            margin-bottom: 10px;
+            color: #8b4513;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .event-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .event-item h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .event-meta {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .blockchain-badge {
+            background: #27ae60;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -285,7 +373,7 @@
             <!-- User Profile -->
             <div class="card">
                 <h3>👤 User Profile</h3>
-                <div id="userProfile" style="display:none;">
+                <div id="userProfile" style="display: none;">
                     <div class="credit-score">
                         <h2 id="creditScore">100</h2>
                         <p>Credit Score</p>
@@ -316,8 +404,32 @@
                         <input type="text" id="userEmail" readonly>
                     </div>
                 </div>
-                <div id="userNotRegistered" style="display:none;">
+                <div id="userNotRegistered" style="display: none;">
                     <p>Please register to continue using TicketChain.</p>
+                </div>
+            </div>
+
+            <!-- Upcoming Events Section for Attendees -->
+            <div class="card" id="upcomingEventsCard" style="display: none;">
+                <h3>Upcoming Events I'm Attending</h3>
+                <div id="upcomingEventsList">
+                    <p>Loading upcoming events...</p>
+                </div>
+            </div>
+
+            <!-- Upcoming Events Section for Organizers -->
+            <div class="card" id="organizingEventsCard" style="display: none;">
+                <h3>Events I'm Hosting</h3>
+                <div id="organizingEventsList">
+                    <p>Loading organizing events...</p>
+                </div>
+            </div>
+
+            <!-- Pending Requests Section for Organizers -->
+            <div class="card" id="pendingRequestsCard" style="display: none;">
+                <h3>Pending Registration Requests</h3>
+                <div id="pendingRequestsList">
+                    <p>No pending requests</p>
                 </div>
             </div>
 
@@ -534,21 +646,194 @@
             const roleMessageCard = document.getElementById('roleMessageCard');
             const userRoleDisplay = document.getElementById('userRoleDisplay');
             const userRoleInProfile = document.getElementById('userRoleInProfile');
+            const upcomingEventsCard = document.getElementById('upcomingEventsCard');
+            const organizingEventsCard = document.getElementById('organizingEventsCard');
+            const pendingRequestsCard = document.getElementById('pendingRequestsCard');
             
             if (userRole === 'organizer') {
                 // Show create event form for organizers
                 createEventCard.style.display = 'block';
                 roleMessageCard.style.display = 'none';
+                organizingEventsCard.style.display = 'block';
+                pendingRequestsCard.style.display = 'block';
+                upcomingEventsCard.style.display = 'none';
+                
+                // Load organizing events and pending requests
+                if (currentUser) {
+                    loadOrganizingEvents();
+                    loadPendingRequests();
+                }
             } else {
                 // Hide create event form for attendees
                 createEventCard.style.display = 'none';
                 roleMessageCard.style.display = 'block';
-                userRoleDisplay.textContent = userRole || 'Not specified';
+                organizingEventsCard.style.display = 'none';
+                pendingRequestsCard.style.display = 'none';
+                upcomingEventsCard.style.display = 'block';
+                
+                // Load upcoming events for attendees
+                if (currentUser) {
+                    loadUpcomingEvents();
+                }
             }
             
             // Update role display in user profile
             if (userRoleInProfile) {
                 userRoleInProfile.textContent = userRole || 'Not specified';
+            }
+        }
+
+        // Load upcoming events for attendees
+        async function loadUpcomingEvents() {
+            if (!currentUser || !backendConnected) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/attending`);
+                const data = await response.json();
+                
+                const upcomingEventsList = document.getElementById('upcomingEventsList');
+                
+                if (data.events && data.events.length > 0) {
+                    upcomingEventsList.innerHTML = '';
+                    data.events.forEach(event => {
+                        const eventEl = document.createElement('div');
+                        eventEl.className = 'event-item';
+                        eventEl.innerHTML = `
+                            <h4>${event.title}</h4>
+                            <div class="event-meta">
+                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                            </div>
+                            <p>${event.description || 'No description'}</p>
+                            <p><strong>Status:</strong> ${event.participation_status}</p>
+                            <p><strong>Registered:</strong> ${new Date(event.registration_time).toLocaleDateString()}</p>
+                        `;
+                        upcomingEventsList.appendChild(eventEl);
+                    });
+                } else {
+                    upcomingEventsList.innerHTML = '<p>No upcoming events found.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading upcoming events:', error);
+                document.getElementById('upcomingEventsList').innerHTML = '<p>Failed to load upcoming events.</p>';
+            }
+        }
+
+        // Load events that the user is organizing
+        async function loadOrganizingEvents() {
+            if (!currentUser || !backendConnected) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/organizing`);
+                const data = await response.json();
+                
+                const organizingEventsList = document.getElementById('organizingEventsList');
+                
+                if (data.events && data.events.length > 0) {
+                    organizingEventsList.innerHTML = '';
+                    data.events.forEach(event => {
+                        const eventEl = document.createElement('div');
+                        eventEl.className = 'event-item';
+                        eventEl.innerHTML = `
+                            <h4>${event.title}</h4>
+                            <div class="event-meta">
+                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                            </div>
+                            <p>${event.description || 'No description'}</p>
+                            <p><strong>Event ID:</strong> ${event.id}</p>
+                            <p><strong>Max Attendees:</strong> ${event.max_attendees || 'Unlimited'}</p>
+                        `;
+                        organizingEventsList.appendChild(eventEl);
+                    });
+                } else {
+                    organizingEventsList.innerHTML = '<p>No events being organized.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading organizing events:', error);
+                document.getElementById('organizingEventsList').innerHTML = '<p>Failed to load organizing events.</p>';
+            }
+        }
+
+        // Load pending registration requests for events the user is organizing
+        async function loadPendingRequests() {
+            if (!currentUser || !backendConnected) return;
+            
+            try {
+                // Get all events the user is organizing
+                const organizingResponse = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/organizing`);
+                const organizingData = await organizingResponse.json();
+                
+                const pendingRequestsList = document.getElementById('pendingRequestsList');
+                
+                if (!organizingData.events || organizingData.events.length === 0) {
+                    pendingRequestsList.innerHTML = '<p>No events to manage.</p>';
+                    return;
+                }
+                
+                // Get pending requests for all organizing events
+                let allPendingRequests = [];
+                for (const event of organizingData.events) {
+                    try {
+                        const pendingResponse = await fetch(`${API_BASE}/events/${event.id}/participants/pending`);
+                        const pendingData = await pendingResponse.json();
+                        if (pendingData.pendingParticipants && pendingData.pendingParticipants.length > 0) {
+                            allPendingRequests.push(...pendingData.pendingParticipants.map(p => ({ ...p, event })));
+                        }
+                    } catch (error) {
+                        console.error(`Error loading pending requests for event ${event.id}:`, error);
+                    }
+                }
+                
+                if (allPendingRequests.length > 0) {
+                    pendingRequestsList.innerHTML = '';
+                    allPendingRequests.forEach(request => {
+                        const requestEl = document.createElement('div');
+                        requestEl.className = 'pending-request-item';
+                        requestEl.innerHTML = `
+                            <h4>${request.event.title}</h4>
+                            <p><strong>Attendee:</strong> ${request.user_id}</p>
+                            <p><strong>Requested:</strong> ${new Date(request.registration_time).toLocaleDateString()}</p>
+                            <div class="request-actions">
+                                <button onclick="approveRequest('${request.event.id}', '${request.user_id}', 'approved')" class="btn btn-success">Approve</button>
+                                <button onclick="approveRequest('${request.event.id}', '${request.user_id}', 'rejected')" class="btn btn-danger">Reject</button>
+                            </div>
+                        `;
+                        pendingRequestsList.appendChild(requestEl);
+                    });
+                } else {
+                    pendingRequestsList.innerHTML = '<p>No pending requests.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading pending requests:', error);
+                document.getElementById('pendingRequestsList').innerHTML = '<p>Failed to load pending requests.</p>';
+            }
+        }
+
+        // Approve or reject a registration request
+        async function approveRequest(eventId, userId, status) {
+            if (!backendConnected) {
+                showAlert('Backend not connected. Please check server status.', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/events/${eventId}/participants/${userId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (response.ok) {
+                    showAlert(`Registration ${status} successfully!`, 'success');
+                    // Refresh pending requests
+                    loadPendingRequests();
+                } else {
+                    const error = await response.json();
+                    showAlert(`Failed to ${status} registration: ` + error.error, 'error');
+                }
+            } catch (error) {
+                showAlert(`Failed to ${status} registration: ` + error.message, 'error');
             }
         }
 
@@ -616,6 +901,11 @@
                     data.events.forEach(event => {
                         const eventEl = document.createElement('div');
                         eventEl.className = 'event-item';
+                        
+                        // Check if current user is the organizer
+                        const isOrganizer = currentUser && currentUser.wallet_address === event.organizer_id;
+                        const userRole = localStorage.getItem('es:userRole');
+                        
                         eventEl.innerHTML = `
                             <h4>${event.title}</h4>
                             <div class="event-meta">
@@ -624,7 +914,11 @@
                             </div>
                             <p>${event.description || 'No description'}</p>
                             <p><strong>Event ID:</strong> ${event.id}</p>
-                            <strong>Organizer:</strong> ${event.organizer_id}</p>
+                            <p><strong>Organizer:</strong> ${event.organizer_id}</p>
+                            ${!isOrganizer && userRole === 'attendee' ? 
+                                `<button onclick="registerForEvent('${event.id}')" class="btn btn-primary">Register for Event</button>` : 
+                                ''
+                            }
                         `;
                         eventsListEl.appendChild(eventEl);
                     });
@@ -636,6 +930,41 @@
                 console.error('Error loading events:', error);
             } finally {
                 loadingEl.classList.remove('show');
+            }
+        }
+
+        // Register for an event
+        async function registerForEvent(eventId) {
+            if (!currentUser || !backendConnected) {
+                showAlert('Please connect wallet and register first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/events/${eventId}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUser.wallet_address
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showAlert('Registration request submitted successfully! Waiting for organizer approval.', 'success');
+                    // Refresh upcoming events if user is an attendee
+                    const userRole = localStorage.getItem('es:userRole');
+                    if (userRole === 'attendee') {
+                        loadUpcomingEvents();
+                    }
+                } else {
+                    const error = await response.json();
+                    showAlert('Registration failed: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Registration failed: ' + error.message, 'error');
             }
         }
 
