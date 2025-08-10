@@ -4,6 +4,7 @@ console.log('GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? 'Loaded' : 'Missin
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const SheetsService = process.env.MOCK_SHEETS === '1'
   ? require('./sheetsService.mock')
   : (process.env.DB === 'sqlite' ? require('./sheetsService.sqlite') : (process.env.DB === 'file' ? require('./sheetsService.file') : require('./sheetsService')));
@@ -27,9 +28,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Root route for health checks
+// Serve frontend statically for single-link hosting
+const frontendDir = path.resolve(__dirname, '../../frontend');
+app.use(express.static(frontendDir));
+
+// Root route serves the app homepage
 app.get('/', (req, res) => {
-  res.status(200).send('OK');
+  res.sendFile(path.join(frontendDir, 'home.html'));
 });
 
 // Simple ping route
