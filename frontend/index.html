@@ -996,6 +996,8 @@
             }
             
             try {
+                // Ensure the backend has this user before registering
+                await ensureBackendUser();
                 const response = await fetch(`${API_BASE}/events/${eventId}/register`, {
                     method: 'POST',
                     headers: {
