@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ES — Register</title>
+  <title>ES — Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -106,7 +106,7 @@
   <main class="card" role="main" aria-labelledby="title">
     <div class="header-space">
       <h1 id="title" class="title">Welcome to ES</h1>
-      <p class="subtitle">Register to go ahead</p>
+      <p class="subtitle">Login to continue</p>
     </div>
 
     <form id="registerForm" novalidate>
@@ -134,8 +134,13 @@
         <input id="email" type="email" placeholder="Enter your email" />
       </div>
 
-      <button class="btn" type="submit">Register</button>
-      <p class="helper">Already have an account? <a href="./home.html">Go to Home</a></p>
+      <div class="group">
+        <label for="wallet">Wallet Address</label>
+        <input id="wallet" type="text" placeholder="Enter your wallet address" required />
+      </div>
+
+      <button class="btn" type="submit">Login</button>
+      <p class="helper">Don't have an account? <a href="./home.html">Go to Home</a></p>
     </form>
   </main>
 
@@ -148,14 +153,29 @@
       const name = document.getElementById('name').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const email = document.getElementById('email').value.trim();
+      const wallet = document.getElementById('wallet').value.trim();
 
-      if (!role || !name || !phone) {
-        alert('Please fill out role, name, and phone number.');
+      if (!role || !name || !phone || !wallet) {
+        alert('Please fill out role, name, phone number, and wallet address.');
         return;
       }
 
-      const user = { role, name, phone, email, createdAt: new Date().toISOString() };
-      try { localStorage.setItem('es:user', JSON.stringify(user)); } catch(_) {}
+      const user = { 
+        role, 
+        name, 
+        phone, 
+        email, 
+        wallet_address: wallet,
+        credit_score: 100, // Starting credit score as per requirements
+        createdAt: new Date().toISOString() 
+      };
+      
+      try { 
+        localStorage.setItem('es:user', JSON.stringify(user)); 
+        // Also store role separately for easy access
+        localStorage.setItem('es:userRole', role);
+      } catch(_) {}
+      
       window.location.href = './home.html';
     });
   </script>

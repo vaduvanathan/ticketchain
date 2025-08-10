@@ -149,6 +149,31 @@
             margin-bottom: 5px;
         }
 
+        .user-role {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .user-role strong {
+            color: #f0f0f0;
+        }
+
+        .credit-rules {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .credit-rules small {
+            color: #f0f0f0;
+        }
+
         .events-list {
             max-height: 400px;
             overflow-y: auto;
@@ -264,6 +289,19 @@
                     <div class="credit-score">
                         <h2 id="creditScore">100</h2>
                         <p>Credit Score</p>
+                        <div class="user-role">
+                            <strong>Role:</strong> <span id="userRoleInProfile">Loading...</span>
+                        </div>
+                        <div class="credit-rules">
+                            <small>
+                                <strong>Scoring Rules:</strong><br>
+                                • On-time arrival: +10 points<br>
+                                • Late arrival (≤15 min): +5 points<br>
+                                • Late arrival (>15 min): -5 points<br>
+                                • Feedback submission: +2 points<br>
+                                • High ratings received: +5 points
+                            </small>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Wallet Address:</label>
@@ -283,9 +321,9 @@
                 </div>
             </div>
 
-            <!-- Create Event -->
-            <div class="card">
-                <h3>📅 Create Event</h3>
+            <!-- Create Event (Organizers Only) -->
+            <div class="card" id="createEventCard" style="display: none;">
+                <h3>📅 Create Event (Organizers Only)</h3>
                 <form id="createEventForm">
                     <div class="form-group">
                         <label for="eventTitle">Event Title:</label>
@@ -315,6 +353,13 @@
                     </div>
                     <button type="submit" class="btn">Create Event</button>
                 </form>
+            </div>
+
+            <!-- Role-based Message -->
+            <div class="card" id="roleMessageCard" style="display: none;">
+                <h3>🔒 Access Restricted</h3>
+                <p>Only organizers can create events. Attendees can view and register for events.</p>
+                <p><strong>Your Role:</strong> <span id="userRoleDisplay"></span></p>
             </div>
 
             <!-- Events List -->
@@ -476,6 +521,35 @@
             document.getElementById('userWallet').value = currentUser.wallet_address;
             document.getElementById('userName').value = currentUser.name || '';
             document.getElementById('userEmail').value = currentUser.email || '';
+            
+            // Check user role and show/hide appropriate sections
+            checkUserRole();
+        }
+
+        // Check user role and show/hide sections accordingly
+        function checkUserRole() {
+            // Get user role from localStorage (set during login)
+            const userRole = localStorage.getItem('es:userRole');
+            const createEventCard = document.getElementById('createEventCard');
+            const roleMessageCard = document.getElementById('roleMessageCard');
+            const userRoleDisplay = document.getElementById('userRoleDisplay');
+            const userRoleInProfile = document.getElementById('userRoleInProfile');
+            
+            if (userRole === 'organizer') {
+                // Show create event form for organizers
+                createEventCard.style.display = 'block';
+                roleMessageCard.style.display = 'none';
+            } else {
+                // Hide create event form for attendees
+                createEventCard.style.display = 'none';
+                roleMessageCard.style.display = 'block';
+                userRoleDisplay.textContent = userRole || 'Not specified';
+            }
+            
+            // Update role display in user profile
+            if (userRoleInProfile) {
+                userRoleInProfile.textContent = userRole || 'Not specified';
+            }
         }
 
         // Create event
@@ -624,6 +698,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkBackendConnection();
             loadEvents();
+            // Check user role on page load
+            checkUserRole();
         });
     </script>
 </body>
