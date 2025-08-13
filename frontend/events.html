@@ -8,30 +8,201 @@
   <link rel="stylesheet" href="./styles/theme.css">
   <style>
     :root {
-      --bg: #ffe9ea; --panel: #ffffff; --red-1: #c20e17; --red-2: #ed2b2b; --red-3: #8e0b12; --text: #2b2b2b; --muted: #7a7a7a; --shadow: rgba(139,0,0,.15);
+      --bg: #ffe9ea; 
+      --panel: #ffffff; 
+      --red-1: #c20e17; 
+      --red-2: #ed2b2b; 
+      --red-3: #8e0b12; 
+      --text: #2b2b2b; 
+      --muted: #7a7a7a; 
+      --shadow: rgba(139,0,0,.15);
     }
+    
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg,#ffeef0,#ffe3e6); font-family: 'Rubik', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--text); }
-    .shell { max-width: 1200px; margin: 0 auto; padding: 18px 20px 40px; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; }
-    .brand { display:inline-flex; align-items:center; gap:10px; background:#fff; padding:10px 14px; border-radius:14px; box-shadow:0 6px 18px var(--shadow); border:2px solid #f4d6d8; font-weight:800; color:var(--red-1); font-family:'Orbitron',sans-serif; }
-    .brand .icon { width:26px; height:26px; border-radius:8px; background: linear-gradient(135deg,var(--red-2),var(--red-1)); display:grid; place-items:center; color:#fff; }
-    .actions { display:flex; gap:12px; }
-    .ghost { background:#fff; padding:10px 14px; border-radius:999px; border:2px solid #f4d6d8; color:var(--red-1); font-weight:700; box-shadow:0 6px 18px var(--shadow); text-decoration:none; }
-    .card { background:#fff; border:2px solid #f4d6d8; border-radius:22px; padding:24px; margin-top:18px; box-shadow:0 12px 32px var(--shadow); }
-    .card h3 { margin:0 0 12px; color:var(--red-1); font-family:'Orbitron',sans-serif; }
-    .events-list { display:grid; grid-template-columns: repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
-    .event-item { background:#f8f9fa; padding:16px; border-radius:14px; border-left:4px solid var(--red-2); }
-    .event-item h4 { margin:0 0 8px; color:var(--red-1); }
-    .event-meta { font-size:.9rem; color:#666; margin-bottom:8px; }
-    .loading { margin-top:8px; color:var(--muted); }
+    
+    body { 
+      margin: 0; 
+      min-height: 100vh; 
+      background: linear-gradient(180deg, #ffeef0, #ffe3e6); 
+      font-family: 'Rubik', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; 
+      color: var(--text); 
+    }
+    
+    .shell { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 18px 20px 40px; 
+    }
+    
+    .topbar { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+    }
+    
+    .brand { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 10px; 
+      background: #fff; 
+      padding: 10px 14px; 
+      border-radius: 14px; 
+      box-shadow: 0 6px 18px var(--shadow); 
+      border: 2px solid #f4d6d8; 
+      font-weight: 800; 
+      color: var(--red-1); 
+      font-family: 'Orbitron', sans-serif; 
+    }
+    
+    .brand .icon { 
+      width: 26px; 
+      height: 26px; 
+      border-radius: 8px; 
+      background: linear-gradient(135deg, var(--red-2), var(--red-1)); 
+      display: grid; 
+      place-items: center; 
+      color: #fff; 
+    }
+    
+    .actions { 
+      display: flex; 
+      gap: 12px; 
+    }
+    
+    .ghost { 
+      background: #fff; 
+      padding: 10px 14px; 
+      border-radius: 999px; 
+      border: 2px solid #f4d6d8; 
+      color: var(--red-1); 
+      font-weight: 700; 
+      box-shadow: 0 6px 18px var(--shadow); 
+      text-decoration: none; 
+    }
+    
+    .card { 
+      background: #fff; 
+      border: 2px solid #f4d6d8; 
+      border-radius: 22px; 
+      padding: 24px; 
+      margin-top: 18px; 
+      box-shadow: 0 12px 32px var(--shadow); 
+    }
+    
+    .card h3 { 
+      margin: 0 0 12px; 
+      color: var(--red-1); 
+      font-family: 'Orbitron', sans-serif; 
+    }
+    
+    .events-list { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+      gap: 16px; 
+    }
+    
+    .event-item { 
+      background: #f8f9fa; 
+      padding: 16px; 
+      border-radius: 14px; 
+      border-left: 4px solid var(--red-2); 
+    }
+    
+    .event-item h4 { 
+      margin: 0 0 8px; 
+      color: var(--red-1); 
+    }
+    
+    .event-meta { 
+      font-size: 0.9rem; 
+      color: #666; 
+      margin-bottom: 8px; 
+    }
+    
+    .loading { 
+      margin-top: 8px; 
+      color: var(--muted); 
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+      .shell {
+        padding: 12px 16px 24px;
+      }
+      
+      .topbar {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+      }
+      
+      .actions {
+        justify-content: center;
+      }
+      
+      .ghost {
+        text-align: center;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .brand {
+        justify-content: center;
+      }
+      
+      .events-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .event-item {
+        padding: 20px 16px;
+      }
+      
+      .card {
+        padding: 20px;
+        margin-top: 16px;
+      }
+      
+      .card h3 {
+        font-size: 18px;
+      }
+    }
+
+    @media (min-width: 481px) and (max-width: 768px) {
+      .events-list {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+      
+      .topbar {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .events-list {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+    }
+
+    /* Touch targets for mobile */
+    @media (max-width: 768px) {
+      .ghost {
+        min-height: 44px;
+        padding: 12px 16px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <header class="topbar">
-      <div class="brand"><span class="icon">e</span> <span>ticketchain</span></div>
+      <div class="brand"><span class="icon">T</span> <span>TicketChain</span></div>
       <div class="actions">
+        <a class="ghost" href="./home.html">Home</a>
         <a class="ghost" href="./login.html">Login</a>
         <a class="ghost" href="./register.html">Register</a>
       </div>
