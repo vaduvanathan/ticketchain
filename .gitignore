@@ -4,3 +4,4 @@ node_modules
 .DS_Store
 backend/credentials.json
 **/credentials.json
+backend/data/db.json
