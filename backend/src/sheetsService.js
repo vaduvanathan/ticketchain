@@ -116,18 +116,22 @@ class SheetsService {
         await this.initialize();
         const sheet = this.sheets.users;
         const rows = await sheet.getRows();
-        
-        const userRow = rows.find(row => row.get('id') === userId);
+
+        // Find user by id or wallet_address
+        let userRow = rows.find(row => row.get('id') === userId);
+        if (!userRow) {
+            userRow = rows.find(row => row.get('wallet_address') === userId);
+        }
         if (!userRow) throw new Error('User not found');
-        
+
         const oldScore = parseInt(userRow.get('credit_score'));
         userRow.set('credit_score', newScore);
         userRow.set('updated_at', new Date().toISOString());
         await userRow.save();
 
         // Log the credit change
-        await this.logCreditChange(userId, null, 'credit_update', newScore - oldScore, reason);
-        
+        await this.logCreditChange(userRow.get('id'), null, 'credit_update', newScore - oldScore, reason);
+
         return { oldScore, newScore, change: newScore - oldScore };
     }
 
@@ -277,7 +281,10 @@ class SheetsService {
             row.get('event_id') === eventId && row.get('user_id') === userId
         );
         
-        if (!participantRow) throw new Error('Participant not registered for this event');
+        if (!participantRow) {
+            // Return a structured error instead of throwing
+            return { error: 'Participant not registered for this event', code: 404 };
+        }
         
         const actualCheckInTime = checkInTime || new Date().toISOString();
         participantRow.set('check_in_time', actualCheckInTime);
