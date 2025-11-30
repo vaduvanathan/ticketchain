@@ -10,6 +10,11 @@
   --text-highlight: #FCEE0A;
   --shadow: rgba(252, 238, 10, 0.2);
   --glitch-offset: 2px;
+
+  /* Backward Compatibility for index.html styles */
+  --red-1: var(--accent);
+  --red-2: var(--accent);
+  --red-3: var(--secondary);
 }
 
 * { box-sizing: border-box; }
