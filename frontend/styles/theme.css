@@ -1,58 +1,206 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rubik:wght@400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;600;700&display=swap');
 
 :root {
-  --bg: #ffe9ea;
-  --panel: #ffffff;
-  --red-1: #c20e17;
-  --red-2: #ed2b2b;
-  --red-3: #8e0b12;
-  --text: #2b2b2b;
-  --muted: #7a7a7a;
-  --shadow: rgba(139, 0, 0, 0.15);
+  --bg: #000000; /* Cyberpunk Black */
+  --panel: #0a0a0a; /* Dark Grey */
+  --primary: #FCEE0A; /* Cyberpunk Yellow */
+  --secondary: #00F0FF; /* Cyan */
+  --accent: #FF003C; /* Magenta */
+  --text: #e0e0e0; /* Off-white for readability */
+  --text-highlight: #FCEE0A;
+  --shadow: rgba(252, 238, 10, 0.2);
+  --glitch-offset: 2px;
 }
 
 * { box-sizing: border-box; }
 
 html, body {
   height: 100%;
+  scroll-behavior: smooth; /* Luma-like smooth scrolling */
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  font-family: 'Rubik', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  background: linear-gradient(180deg, #0b0c10 0%, #8e0b12 100%);
+  font-family: 'Rajdhani', sans-serif;
+  background-color: var(--bg);
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px; /* Grid background */
+  overflow-x: hidden;
 }
 
-.shell, .container { max-width: 1200px; margin: 0 auto; padding: 18px 20px 40px; }
+/* Luma-inspired Loading Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-.topbar, .header { display:flex; align-items:center; justify-content:space-between; }
+.shell, .container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 40px 20px; 
+  animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.topbar, .header { 
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  padding: 20px 0;
+  border-bottom: 1px solid var(--primary);
+  margin-bottom: 40px;
+}
 
 .brand {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: var(--panel);
-  padding: 10px 14px; border-radius: 14px;
-  box-shadow: 0 6px 18px var(--shadow);
-  border: 2px solid #f4d6d8;
-  font-weight: 800; color: var(--red-1);
+  display: inline-flex; 
+  align-items: center; 
+  gap: 10px;
+  background: transparent;
+  padding: 10px 14px; 
+  border: none;
+  font-weight: 900; 
+  color: var(--primary);
   font-family: 'Orbitron', sans-serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 5px var(--primary);
 }
 
-.brand .icon { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--red-2), var(--red-1)); display: grid; place-items: center; color: #fff; }
+.brand .icon { 
+  display: none; /* Remove old icon */
+}
 
-.ghost { background: #fff; padding: 10px 14px; border-radius: 999px; border: 2px solid #f4d6d8; color: var(--red-1); font-weight: 700; box-shadow: 0 6px 18px var(--shadow); text-decoration: none; }
+/* Cyberpunk Buttons */
+.btn, .ghost { 
+  background: var(--primary); 
+  color: #000; 
+  border: none; 
+  padding: 15px 30px; 
+  cursor: pointer; 
+  font-weight: 700; 
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+}
 
-.card { background: var(--panel); border: 2px solid #f4d6d8; border-radius: 22px; padding: 24px; box-shadow: 0 12px 32px var(--shadow); }
+.ghost {
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
 
-.card h3 { margin: 0 0 12px; color: var(--red-1); font-family: 'Orbitron', sans-serif; }
+.btn:hover { 
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--accent);
+  background: #fff;
+}
 
-.btn { background: linear-gradient(135deg, var(--red-2), var(--red-1)); color: #fff; border: none; padding: 12px 16px; border-radius: 12px; cursor: pointer; font-weight: 800; box-shadow: 0 10px 24px var(--shadow); }
+.ghost:hover {
+  background: var(--secondary);
+  color: #000;
+  box-shadow: 0 0 20px var(--secondary);
+}
 
-.btn:hover { transform: translateY(-1px); }
+/* Cyberpunk Cards */
+.card { 
+  background: var(--panel); 
+  border: 1px solid var(--primary); 
+  padding: 30px; 
+  position: relative;
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
 
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(45deg, transparent 48%, var(--primary) 49%, var(--primary) 51%, transparent 52%);
+  background-size: 10px 10px;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.card h3 { 
+  margin: 0 0 20px; 
+  color: var(--secondary); 
+  font-family: 'Orbitron', sans-serif; 
+  text-transform: uppercase;
+  border-left: 4px solid var(--accent);
+  padding-left: 15px;
+}
+
+/* Inputs */
 input, select, textarea {
-  width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #f4d6d8;
+  width: 100%; 
+  padding: 15px; 
+  background: #000;
+  border: 1px solid #333;
+  color: var(--primary);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: border-color 0.3s;
 }
 
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--red-2); }
+input:focus, select:focus, textarea:focus { 
+  outline: none; 
+  border-color: var(--secondary); 
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+/* Glitch Effect Class */
+.glitch {
+  position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -1px 0 var(--accent);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -1px 0 var(--secondary);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(35px, 9999px, 11px, 0); }
+  20% { clip: rect(68px, 9999px, 96px, 0); }
+  40% { clip: rect(12px, 9999px, 5px, 0); }
+  60% { clip: rect(89px, 9999px, 44px, 0); }
+  80% { clip: rect(24px, 9999px, 67px, 0); }
+  100% { clip: rect(5px, 9999px, 88px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(15px, 9999px, 91px, 0); }
+  20% { clip: rect(58px, 9999px, 16px, 0); }
+  40% { clip: rect(92px, 9999px, 25px, 0); }
+  60% { clip: rect(19px, 9999px, 74px, 0); }
+  80% { clip: rect(54px, 9999px, 37px, 0); }
+  100% { clip: rect(85px, 9999px, 18px, 0); }
+}
