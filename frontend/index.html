@@ -4,431 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicketChain - Web3 Event Management</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.1/dist/ethers.umd.min.js"></script>
     <link rel="stylesheet" href="./styles/theme.css">
-    <style>
-        :root {
-            --bg: #ffe9ea;
-            --panel: #ffffff;
-            --red-1: #c20e17;
-            --red-2: #ed2b2b;
-            --red-3: #8e0b12;
-            --text: #2b2b2b;
-            --muted: #7a7a7a;
-            --shadow: rgba(139, 0, 0, 0.15);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Rubik', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(180deg, #ffeef0, #ffe3e6);
-            min-height: 100vh;
-            color: var(--text);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 18px 20px 40px;
-        }
-
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #ffffff;
-            padding: 10px 14px;
-            border-radius: 14px;
-            box-shadow: 0 6px 18px var(--shadow);
-            border: 2px solid #f4d6d8;
-            font-weight: 800;
-            color: var(--red-1);
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .brand .icon {
-            width: 26px; height: 26px; border-radius: 8px;
-            background: linear-gradient(135deg, var(--red-2), var(--red-1));
-            display: grid; place-items: center; color: white;
-        }
-
-        .actions { display: flex; align-items: center; gap: 14px; }
-        .ghost { background: #fff; padding: 10px 14px; border-radius: 999px; border: 2px solid #f4d6d8; color: var(--red-1); font-weight: 700; box-shadow: 0 6px 18px var(--shadow); text-decoration: none; }
-
-        .wallet-section {
-            background: #fff;
-            border: 2px solid #f4d6d8;
-            border-radius: 22px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 12px 32px var(--shadow);
-        }
-
-        .wallet-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .status-indicator {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: #e74c3c;
-        }
-
-        .status-indicator.connected {
-            background: #27ae60;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--red-2), var(--red-1));
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 800;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 10px 24px var(--shadow);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px var(--shadow);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .card {
-            background: #fff;
-            border: 2px solid #f4d6d8;
-            border-radius: 22px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 12px 32px var(--shadow);
-        }
-
-        .card h3 {
-            color: var(--red-1);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 700;
-            color: var(--red-3);
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #f4d6d8;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--red-2);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-        }
-
-        .credit-score {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--red-2), var(--red-1));
-            color: white;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .credit-score h2 {
-            font-size: 3rem;
-            margin-bottom: 5px;
-        }
-
-        .user-role {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .user-role strong {
-            color: #f0f0f0;
-        }
-
-        .credit-rules {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-
-        .credit-rules small {
-            color: #f0f0f0;
-        }
-
-        .events-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .event-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--red-2);
-        }
-
-        .event-item h4 {
-            color: var(--red-1);
-            margin-bottom: 8px;
-        }
-
-        .event-meta {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-info {
-            background: #cce7ff;
-            color: #004085;
-            border: 1px solid #b3d7ff;
-        }
-
-        .blockchain-badge {
-            display: inline-block;
-            background: #27ae60;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 10px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .pending-request-item {
-            background: #fdf6e3; /* Light yellow background */
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #f1c40f; /* Orange border */
-        }
-
-        .request-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-primary {
-            background: var(--red-2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--red-1);
-        }
-
-        .pending-request-item {
-            background: #fdf6e3;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #f1c40f;
-        }
-
-        .pending-request-item h4 {
-            margin-bottom: 10px;
-            color: #8b4513;
-        }
-
-        .request-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .event-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-
-        .event-item h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .event-meta {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-
-        .blockchain-badge {
-            background: #27ae60;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-left: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 16px;
-                align-items: stretch;
-            }
-            
-            .actions {
-                justify-content: center;
-            }
-            
-            .ghost {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .brand {
-                justify-content: center;
-            }
-            
-            .container {
-                padding: 12px 16px 24px;
-            }
-            
-            .wallet-section {
-                padding: 20px;
-            }
-            
-            .card {
-                padding: 20px;
-            }
-            
-            .btn {
-                min-height: 44px;
-                font-size: 16px;
-            }
-            
-            .form-group input, 
-            .form-group textarea, 
-            .form-group select {
-                font-size: 16px; /* Prevent zoom on iOS */
-                min-height: 44px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 8px 12px 20px;
-            }
-            
-            .grid {
-                gap: 16px;
-            }
-            
-            .card h3 {
-                font-size: 18px;
-            }
-            
-            .credit-score h2 {
-                font-size: 2.5rem;
-            }
-        }
-
-        @media (min-width: 481px) and (max-width: 768px) {
-            .grid {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            }
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -441,7 +18,7 @@
         </div>
 
         <!-- Wallet Connection Section -->
-        <div class="wallet-section">
+        <div class="wallet-section card">
             <div class="wallet-status">
                 <div class="status-indicator" id="walletIndicator"></div>
                 <span id="walletStatus">Wallet not connected</span>
@@ -457,25 +34,25 @@
         <div id="alerts"></div>
 
         <!-- Main Content Grid -->
-        <div class="grid">
+        <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
             <!-- User Profile -->
             <div class="card">
-                <h3 id="profileTitle">👤 User</h3>
+                <h3 id="profileTitle">ðŸ‘¤ User</h3>
                 <div id="userProfile" style="display: none;">
-                    <div class="credit-score">
-                        <h2 id="creditScore">100</h2>
+                    <div class="credit-score" style="text-align: center; margin-bottom: 20px;">
+                        <h2 id="creditScore" class="glitch" data-text="100" style="font-size: 4rem; margin: 0;">100</h2>
                         <p>Credit Score</p>
-                        <div class="user-role">
+                        <div class="user-role" style="margin-top: 10px; padding: 10px; border: 1px solid var(--secondary);">
                             <strong>Role:</strong> <span id="userRoleInProfile">Loading...</span>
                         </div>
-                        <div class="credit-rules">
+                        <div class="credit-rules" style="margin-top: 15px; font-size: 0.8rem; text-align: left;">
                             <small>
                                 <strong>Scoring Rules:</strong><br>
-                                • On-time arrival: +10 points<br>
-                                • Late arrival (≤15 min): +5 points<br>
-                                • Late arrival (>15 min): -5 points<br>
-                                • Feedback submission: +2 points<br>
-                                • High ratings received: +5 points
+                                â€¢ On-time arrival: +10 points<br>
+                                â€¢ Late arrival (â‰¤15 min): +5 points<br>
+                                â€¢ Late arrival (>15 min): -5 points<br>
+                                â€¢ Feedback submission: +2 points<br>
+                                â€¢ High ratings received: +5 points
                             </small>
                         </div>
                     </div>
@@ -523,7 +100,7 @@
 
             <!-- Create Event (Organizers Only) -->
             <div class="card" id="createEventCard" style="display: none;">
-                <h3>📅 Create Event (Organizers Only)</h3>
+                <h3>ðŸ“… Create Event (Organizers Only)</h3>
                 <form id="createEventForm">
                     <div class="form-group">
                         <label for="eventTitle">Event Title:</label>
@@ -547,7 +124,7 @@
                     </div>
                     <div class="form-group">
                         <label>
-                            <input type="checkbox" id="useBlockchain" checked> 
+                            <input type="checkbox" id="useBlockchain" checked>
                             Register on Blockchain
                         </label>
                     </div>
@@ -557,14 +134,14 @@
 
             <!-- Role-based Message -->
             <div class="card" id="roleMessageCard" style="display: none;">
-                <h3>🔒 Access Restricted</h3>
+                <h3>ðŸ”’ Access Restricted</h3>
                 <p>Only organizers can create events. Attendees can view and register for events.</p>
                 <p><strong>Your Role:</strong> <span id="userRoleDisplay"></span></p>
             </div>
 
             <!-- Events List -->
             <div class="card">
-                <h3>🎪 Events</h3>
+                <h3>ðŸŽª Events</h3>
                 <button class="btn" onclick="loadEvents()" style="margin-bottom: 15px;">Refresh Events</button>
                 <div class="events-list" id="eventsList">
                     <div class="loading" id="eventsLoading">Loading events...</div>
@@ -573,7 +150,7 @@
 
             <!-- Check-in Section -->
             <div class="card">
-                <h3>✅ Event Check-in</h3>
+                <h3>âœ… Event Check-in</h3>
                 <form id="checkinForm">
                     <div class="form-group">
                         <label for="checkinEventId">Event ID:</label>
@@ -596,7 +173,7 @@
         let currentUser = null;
         let web3Provider = null;
         let backendConnected = false;
-        
+
         // Prefer local user (no MetaMask required for hackathon)
         try {
             const localRaw = localStorage.getItem('es:user');
@@ -666,16 +243,16 @@
                 try {
                     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
-                    
+
                     web3Provider = new ethers.BrowserProvider(window.ethereum);
-                    
+
                     document.getElementById('walletStatus').textContent = `Connected: ${account.substring(0, 6)}...${account.substring(38)}`;
                     document.getElementById('walletIndicator').classList.add('connected');
                     document.getElementById('connectWallet').style.display = 'none';
-                    
+
                     // Check if user is registered
                     await checkUserRegistration(account);
-                    
+
                 } catch (error) {
                     showAlert('Failed to connect wallet: ' + error.message, 'error');
                 }
@@ -688,7 +265,7 @@
         async function checkUserRegistration(walletAddress) {
             try {
                 const response = await fetch(`${API_BASE}/users/${walletAddress}`);
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     currentUser = data.user;
@@ -706,15 +283,15 @@
         // Register new user
         async function registerUser() {
             if (!web3Provider) return;
-            
+
             const signer = await web3Provider.getSigner();
             const address = await signer.getAddress();
-            
+
             const name = prompt('Enter your name:');
             const email = prompt('Enter your email (optional):');
-            
+
             if (!name) return;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/users`, {
                     method: 'POST',
@@ -727,7 +304,7 @@
                         email: email || ''
                     })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     currentUser = data.user;
@@ -747,15 +324,15 @@
         // Display user profile
         function displayUserProfile() {
             if (!currentUser) return;
-            
+
             document.getElementById('userProfile').style.display = 'block';
             const title = document.getElementById('profileTitle');
-            if (title) title.textContent = `👤 ${currentUser.name || 'User'}`;
+            if (title) title.textContent = `ðŸ‘¤ ${currentUser.name || 'User'}`;
             document.getElementById('creditScore').textContent = currentUser.credit_score || '100';
             document.getElementById('userWallet').value = currentUser.wallet_address;
             document.getElementById('userName').value = currentUser.name || '';
             document.getElementById('userEmail').value = currentUser.email || '';
-            
+
             // Check user role and show/hide appropriate sections
             checkUserRole();
         }
@@ -771,7 +348,7 @@
             const upcomingEventsCard = document.getElementById('upcomingEventsCard');
             const organizingEventsCard = document.getElementById('organizingEventsCard');
             const pendingRequestsCard = document.getElementById('pendingRequestsCard');
-            
+
             if (userRole === 'organizer') {
                 // Show create event form for organizers
                 createEventCard.style.display = 'block';
@@ -779,7 +356,7 @@
                 organizingEventsCard.style.display = 'block';
                 pendingRequestsCard.style.display = 'block';
                 upcomingEventsCard.style.display = 'none';
-                
+
                 // Load organizing events and pending requests
                 if (currentUser) {
                     loadOrganizingEvents();
@@ -792,13 +369,13 @@
                 organizingEventsCard.style.display = 'none';
                 pendingRequestsCard.style.display = 'none';
                 upcomingEventsCard.style.display = 'block';
-                
+
                 // Load upcoming events for attendees
                 if (currentUser) {
                     loadUpcomingEvents();
                 }
             }
-            
+
             // Update role display in user profile
             if (userRoleInProfile) {
                 userRoleInProfile.textContent = userRole || 'Not specified';
@@ -808,13 +385,13 @@
         // Load upcoming events for attendees
         async function loadUpcomingEvents() {
             if (!currentUser) return;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/attending`);
                 const data = await response.json();
-                
+
                 const upcomingEventsList = document.getElementById('upcomingEventsList');
-                
+
                 if (data.events && data.events.length > 0) {
                     upcomingEventsList.innerHTML = '';
                     data.events.forEach(event => {
@@ -823,7 +400,7 @@
                         eventEl.innerHTML = `
                             <h4>${event.title}</h4>
                             <div class="event-meta">
-                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                                ðŸ“ ${event.location || 'TBD'} | ðŸ“… ${new Date(event.date_time).toLocaleString()}
                             </div>
                             <p>${event.description || 'No description'}</p>
                             <p><strong>Status:</strong> ${event.participation_status}</p>
@@ -843,13 +420,13 @@
         // Load events that the user is organizing
         async function loadOrganizingEvents() {
             if (!currentUser) return;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/organizing`);
                 const data = await response.json();
-                
+
                 const organizingEventsList = document.getElementById('organizingEventsList');
-                
+
                 if (data.events && data.events.length > 0) {
                     organizingEventsList.innerHTML = '';
                     data.events.forEach(event => {
@@ -858,7 +435,7 @@
                         eventEl.innerHTML = `
                             <h4>${event.title}</h4>
                             <div class="event-meta">
-                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                                ðŸ“ ${event.location || 'TBD'} | ðŸ“… ${new Date(event.date_time).toLocaleString()}
                             </div>
                             <p>${event.description || 'No description'}</p>
                             <p><strong>Event ID:</strong> ${event.id}</p>
@@ -879,19 +456,19 @@
         // Load pending registration requests for events the user is organizing
         async function loadPendingRequests() {
             if (!currentUser || !backendConnected) return;
-            
+
             try {
                 // Get all events the user is organizing
                 const organizingResponse = await fetch(`${API_BASE}/users/${currentUser.wallet_address}/events/organizing`);
                 const organizingData = await organizingResponse.json();
-                
+
                 const pendingRequestsList = document.getElementById('pendingRequestsList');
-                
+
                 if (!organizingData.events || organizingData.events.length === 0) {
                     pendingRequestsList.innerHTML = '<p>No events to manage.</p>';
                     return;
                 }
-                
+
                 // Get pending requests for all organizing events
                 let allPendingRequests = [];
                 for (const event of organizingData.events) {
@@ -905,7 +482,7 @@
                         console.error(`Error loading pending requests for event ${event.id}:`, error);
                     }
                 }
-                
+
                 if (allPendingRequests.length > 0) {
                     pendingRequestsList.innerHTML = '';
                     allPendingRequests.forEach(request => {
@@ -937,7 +514,7 @@
                 showAlert('Backend not connected. Please check server status.', 'error');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE}/events/${eventId}/participants/${userId}/approve`, {
                     method: 'POST',
@@ -946,7 +523,7 @@
                     },
                     body: JSON.stringify({ status })
                 });
-                
+
                 if (response.ok) {
                     showAlert(`Registration ${status} successfully!`, 'success');
                     // Refresh pending requests
@@ -963,12 +540,12 @@
         // Create event
         document.getElementById('createEventForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             if (!currentUser) {
                 showAlert('Please connect wallet and register first', 'error');
                 return;
             }
-            
+
             const formData = {
                 title: document.getElementById('eventTitle').value,
                 description: document.getElementById('eventDescription').value,
@@ -978,7 +555,7 @@
                 organizer_id: currentUser.wallet_address,
                 use_blockchain: document.getElementById('useBlockchain').checked
             };
-            
+
             try {
                 const response = await fetch(`${API_BASE}/events`, {
                     method: 'POST',
@@ -987,7 +564,7 @@
                     },
                     body: JSON.stringify(formData)
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     showAlert(`Event created successfully! Event ID: ${data.event.id}`, 'success');
@@ -1006,32 +583,32 @@
         async function loadEvents() {
             const loadingEl = document.getElementById('eventsLoading');
             const eventsListEl = document.getElementById('eventsList');
-            
+
             if (!loadingEl || !eventsListEl) return;
             loadingEl.classList.add('show');
-            
+
                          try {
                  const response = await fetch(`${API_BASE}/events`).catch(() => null);
                  if (!response) { eventsListEl.innerHTML = '<p>Backend not reachable.</p>'; return; }
                  const data = await response.json().catch(() => ({ events: [] }));
-                
+
                 eventsListEl.innerHTML = '';
-                
+
                 if (data.events && data.events.length > 0) {
                     const seen = new Set();
                     data.events.forEach(event => {
                         if (seen.has(event.id)) return; seen.add(event.id);
                         const eventEl = document.createElement('div');
                         eventEl.className = 'event-item';
-                        
+
                         // Check if current user is the organizer
                         const isOrganizer = currentUser && currentUser.wallet_address === event.organizer_id;
                         const userRole = localStorage.getItem('es:userRole');
-                        
+
                         eventEl.innerHTML = `
                             <h4>${event.title}</h4>
                             <div class="event-meta">
-                                📍 ${event.location || 'TBD'} | 📅 ${new Date(event.date_time).toLocaleString()}
+                                ðŸ“ ${event.location || 'TBD'} | ðŸ“… ${new Date(event.date_time).toLocaleString()}
                                 ${event.blockchain ? '<span class="blockchain-badge">On-Chain</span>' : ''}
                             </div>
                             <p>${event.description || 'No description'}</p>
@@ -1062,7 +639,7 @@
                 window.location.href = './login.html?intent=join';
                 return;
             }
-            
+
             try {
                 // Ensure the backend has this user before registering
                 await ensureBackendUser();
@@ -1075,7 +652,7 @@
                         user_id: currentUser.wallet_address
                     })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     showAlert('Registration request submitted successfully! Waiting for organizer approval.', 'success');
@@ -1096,15 +673,15 @@
         // Check-in to event
         document.getElementById('checkinForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             if (!currentUser) {
                 showAlert('Please connect wallet and register first', 'error');
                 return;
             }
-            
+
             const eventId = document.getElementById('checkinEventId').value;
             const useBlockchain = document.getElementById('checkinBlockchain').checked;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/events/${eventId}/checkin`, {
                     method: 'POST',
@@ -1116,11 +693,11 @@
                         use_blockchain: useBlockchain
                     })
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     showAlert(`Check-in successful! Punctuality score: ${data.punctuality_score}`, 'success');
-                    
+
                     // Refresh user profile to show updated credit score
                     setTimeout(() => {
                         checkUserRegistration(currentUser.wallet_address);
@@ -1140,9 +717,9 @@
             const alertEl = document.createElement('div');
             alertEl.className = `alert alert-${type}`;
             alertEl.textContent = message;
-            
+
             alertsEl.appendChild(alertEl);
-            
+
             setTimeout(() => {
                 alertEl.remove();
             }, 5000);
